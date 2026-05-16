@@ -171,6 +171,151 @@
             }
         }
 
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .refresh-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            background: rgba(239, 79, 95, 0.15);
+            border: 1px solid var(--primary);
+            border-radius: 10px;
+            color: var(--primary);
+            font-family: 'Sora', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .refresh-btn:hover {
+            background: rgba(239, 79, 95, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .refresh-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .refresh-icon {
+            font-size: 1.1rem;
+            display: inline-block;
+            transition: transform 0.5s ease;
+        }
+
+        .refresh-btn.spinning .refresh-icon {
+            animation: spin 0.7s linear infinite;
+        }
+
+        /* Skeleton loaders */
+        .skeleton-card {
+            background: linear-gradient(135deg, var(--dark-light) 0%, var(--dark-lighter) 100%);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.75rem;
+            overflow: hidden;
+        }
+
+        .skeleton-line {
+            height: 12px;
+            border-radius: 6px;
+            background: linear-gradient(90deg, var(--border) 25%, #3a4566 50%, var(--border) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            margin-bottom: 0.75rem;
+        }
+
+        .skeleton-line.wide { width: 60%; }
+        .skeleton-line.tall { height: 40px; width: 40%; margin-top: 0.5rem; }
+        .skeleton-line.short { width: 35%; }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Table search */
+        .table-header {
+            padding: 1.75rem 2rem;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(90deg, rgba(239, 79, 95, 0.1) 0%, transparent 100%);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .table-search-wrap {
+            flex: 1;
+            max-width: 360px;
+        }
+
+        .table-search {
+            width: 100%;
+            padding: 0.6rem 1rem;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: 'Sora', sans-serif;
+            font-size: 0.85rem;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .table-search:focus {
+            border-color: var(--primary);
+        }
+
+        .table-search::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        /* Styled chart tooltips via Chart.js */
+        .chartjs-tooltip {
+            background: var(--dark-lighter) !important;
+            border: 1px solid var(--border) !important;
+            border-radius: 10px !important;
+            color: var(--text-primary) !important;
+            font-family: 'Sora', sans-serif !important;
+        }
+
+        /* Empty state */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem 2rem;
+            color: var(--text-tertiary);
+            gap: 0.75rem;
+        }
+
+        .empty-state-icon {
+            font-size: 2.5rem;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .refresh-btn span:not(.refresh-icon) { display: none; }
+            .table-search-wrap { max-width: 100%; }
+            .table-header { flex-direction: column; align-items: flex-start; }
+        }
+
         main {
             position: relative;
             z-index: 5;
@@ -192,13 +337,14 @@
             gap: 1rem;
         }
 
-        .section-title::before {
-            content: '';
-            width: 3px;
-            height: 24px;
-            background: linear-gradient(180deg, var(--primary) 0%, var(--accent-purple) 100%);
-            border-radius: 3px;
+        .section-title .section-icon {
+            width: 20px;
+            height: 20px;
+            color: var(--primary);
+            flex-shrink: 0;
         }
+
+        .section-title::before { display: none; }
 
         .stats-grid {
             display: grid;
@@ -415,12 +561,6 @@
             margin-bottom: 3rem;
         }
 
-        .table-header {
-            padding: 1.75rem 2rem;
-            border-bottom: 1px solid var(--border);
-            background: linear-gradient(90deg, rgba(239, 79, 95, 0.1) 0%, transparent 100%);
-        }
-
         .table-title {
             font-size: 1.1rem;
             font-weight: 700;
@@ -547,6 +687,12 @@
             margin-bottom: 3rem;
         }
 
+        @media (max-width: 900px) {
+            .stats-2col {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .info-card {
             background: linear-gradient(135deg, var(--dark-light) 0%, var(--dark-lighter) 100%);
             border: 1px solid var(--border);
@@ -652,25 +798,35 @@
     <header>
         <div class="header-content">
             <div class="logo-section">
-                <div class="logo">🍜</div>
+                <div class="logo">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>
+                    </svg>
+                </div>
                 <div class="brand">
                     <div class="brand-name">ZOMATO</div>
                     <div class="brand-subtitle">Analytics Dashboard</div>
                 </div>
             </div>
-            <div class="header-meta">
-                <div class="meta-item">
-                    <span class="meta-label">Database</span>
-                    <span class="meta-value">Supabase PostgreSQL</span>
+            <div class="header-right">
+                <div class="header-meta">
+                    <div class="meta-item">
+                        <span class="meta-label">Database</span>
+                        <span class="meta-value">Supabase PostgreSQL</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Region</span>
+                        <span class="meta-value">Bangalore, India</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Last Updated</span>
+                        <span class="meta-value" id="updateTime">Just now</span>
+                    </div>
                 </div>
-                <div class="meta-item">
-                    <span class="meta-label">Region</span>
-                    <span class="meta-value">Bangalore, India</span>
-                </div>
-                <div class="meta-item">
-                    <span class="meta-label">Last Updated</span>
-                    <span class="meta-value" id="updateTime">Just now</span>
-                </div>
+                <button class="refresh-btn" onclick="refreshDashboard()" id="refreshBtn" title="Refresh data">
+                    <svg class="refresh-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                    Refresh
+                </button>
             </div>
         </div>
     </header>
@@ -678,7 +834,10 @@
     <main>
         <!-- Key Statistics -->
         <section>
-            <h2 class="section-title">📊 Key Metrics</h2>
+            <h2 class="section-title">
+                <svg class="section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                Key Metrics
+            </h2>
             <div class="stats-grid" id="statsContainer">
                 <div class="loading"><div class="spinner"></div>Loading metrics...</div>
             </div>
@@ -686,11 +845,16 @@
 
         <!-- Charts -->
         <section>
-            <h2 class="section-title">📈 Analytics</h2>
+            <h2 class="section-title">
+                <svg class="section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                Analytics
+            </h2>
             <div class="charts-container">
                 <div class="chart-card">
                     <div class="chart-title">
-                        <div class="chart-icon">⏰</div>
+                        <div class="chart-icon">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        </div>
                         Peak Order Hours
                     </div>
                     <div class="chart-wrapper">
@@ -700,7 +864,9 @@
 
                 <div class="chart-card">
                     <div class="chart-title">
-                        <div class="chart-icon">🍽️</div>
+                        <div class="chart-icon">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+                        </div>
                         Restaurant by Type
                     </div>
                     <div class="chart-wrapper">
@@ -710,7 +876,9 @@
 
                 <div class="chart-card">
                     <div class="chart-title">
-                        <div class="chart-icon">🥘</div>
+                        <div class="chart-icon">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        </div>
                         Top Cuisines
                     </div>
                     <div class="chart-wrapper">
@@ -720,7 +888,9 @@
 
                 <div class="chart-card">
                     <div class="chart-title">
-                        <div class="chart-icon">🏍️</div>
+                        <div class="chart-icon">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 4v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                        </div>
                         Delivery Time by Type
                     </div>
                     <div class="chart-wrapper">
@@ -732,7 +902,10 @@
 
         <!-- Top Restaurants -->
         <section>
-            <h2 class="section-title">⭐ Top Rated Restaurants</h2>
+            <h2 class="section-title">
+                <svg class="section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                Top Rated Restaurants
+            </h2>
             <div class="ranking-section">
                 <div class="ranking-list" id="topList">
                     <div class="loading"><div class="spinner"></div>Loading restaurants...</div>
@@ -742,14 +915,19 @@
 
         <!-- Online Orders Stats -->
         <section>
-            <h2 class="section-title">🛒 Order Delivery Stats</h2>
+            <h2 class="section-title">
+                <svg class="section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Order Delivery Stats
+            </h2>
             <div class="stats-2col">
                 <div class="info-card">
                     <div id="onlineStats"></div>
                 </div>
                 <div class="chart-card">
                     <div class="chart-title">
-                        <div class="chart-icon">📍</div>
+                        <div class="chart-icon">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        </div>
                         Top Areas by Rating
                     </div>
                     <div class="chart-wrapper">
@@ -761,11 +939,18 @@
 
         <!-- Restaurant Table -->
         <section>
-            <h2 class="section-title">📋 All Restaurants</h2>
+            <h2 class="section-title">
+                <svg class="section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                All Restaurants
+            </h2>
             <div class="table-section">
                 <div class="table-header">
                     <div class="table-title">
-                        <span>🏪 Restaurant Directory</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                        Restaurant Directory
+                    </div>
+                    <div class="table-search-wrap">
+                        <input type="text" id="tableSearch" class="table-search" placeholder="Search by name, area or cuisine..." oninput="filterTable(this.value)" />
                     </div>
                 </div>
                 <div class="table-wrapper" id="tableWrap">
@@ -776,13 +961,102 @@
     </main>
 
     <footer>
-        <p>© 2024 Zomato Analytics Dashboard • Built with Supabase • Real-time Data Visualization</p>
+        <p>© 2026 Zomato Analytics Dashboard • Built with Supabase • Real-time Data Visualization</p>
     </footer>
 
     <script>
         // Supabase Configuration
         const SUPABASE_URL = 'https://elmvxclgmfqvwwkrgwii.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_IqIj6szbfuoIDhEzdHtkoQ_57rYK-Ys'; // paste full key here
+        const SUPABASE_KEY = 'sb_publishable_IqIj6szbfuoIDhEzdHtkoQ_57rYK-Ys';
+
+        // Global table data store for search filtering
+        let allTableData = [];
+
+        // Animated counter
+        function animateCounter(el, target, isFloat = false, suffix = '') {
+            const duration = 1200;
+            const start = performance.now();
+            const startVal = 0;
+            function step(now) {
+                const progress = Math.min((now - start) / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                const val = startVal + (target - startVal) * eased;
+                el.textContent = isFloat ? val.toFixed(2) + suffix : Math.round(val).toLocaleString() + suffix;
+                if (progress < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+        }
+
+        // Skeleton loaders for stat cards
+        function showStatSkeletons() {
+            document.getElementById('statsContainer').innerHTML = Array(4).fill(`
+                <div class="skeleton-card">
+                    <div class="skeleton-line short"></div>
+                    <div class="skeleton-line tall"></div>
+                    <div class="skeleton-line wide"></div>
+                </div>`).join('');
+        }
+
+        // Empty state helper
+        function emptyState(icon, text) {
+            return `<div class="empty-state"><div class="empty-state-icon">${icon}</div><div class="empty-state-text">${text}</div></div>`;
+        }
+
+        // Refresh dashboard
+        async function refreshDashboard() {
+            const btn = document.getElementById('refreshBtn');
+            btn.disabled = true;
+            btn.classList.add('spinning');
+
+            // Destroy all existing charts
+            Chart.helpers.each(Chart.instances, c => c.destroy());
+
+            showStatSkeletons();
+            document.getElementById('topList').innerHTML = '<div class="loading"><div class="spinner"></div>Loading...</div>';
+            document.getElementById('tableWrap').innerHTML = '<div class="loading"><div class="spinner"></div>Loading...</div>';
+            document.getElementById('onlineStats').innerHTML = '';
+
+            await Promise.all([
+                loadStats(), loadHours(), loadTopList(),
+                loadCuisine(), loadDelivery(), loadArea(),
+                loadTable(), loadType()
+            ]).catch(console.error);
+
+            btn.disabled = false;
+            btn.classList.remove('spinning');
+        }
+
+        // Table search filter
+        function filterTable(query) {
+            if (!allTableData.length) return;
+            const q = query.toLowerCase().trim();
+            const filtered = q ? allTableData.filter(r =>
+                (r.name || '').toLowerCase().includes(q) ||
+                (r.area || '').toLowerCase().includes(q) ||
+                (r.cuisine || '').toLowerCase().includes(q)
+            ) : allTableData;
+            renderTable(filtered);
+        }
+
+        function renderTable(data) {
+            const w = document.getElementById('tableWrap');
+            if (!data.length) {
+                w.innerHTML = emptyState('🔍', 'No restaurants match your search');
+                return;
+            }
+            w.innerHTML = `<table><thead><tr><th>#</th><th>Restaurant</th><th>Area</th><th>Cuisine</th><th>Rating</th><th>Votes</th><th>Type</th><th>Online</th></tr></thead>
+            <tbody>${data.map((r, i) => `<tr>
+                <td><span class="rank-badge">${i + 1}</span></td>
+                <td><strong>${r.name || 'Unknown'}</strong></td>
+                <td>${r.area || '—'}</td>
+                <td>${r.cuisine ? `<span class="type-badge">${r.cuisine}</span>` : '—'}</td>
+                <td><span class="rating-star">${(r.avg_rating || 0).toFixed(1)}★</span></td>
+                <td>${(r.total_votes || 0).toLocaleString()}</td>
+                <td><span class="type-badge">${r.restaurant_type || '—'}</span></td>
+                <td><span class="online-badge${!r.online_order ? ' offline' : ''}">${r.online_order ? '✓ Yes' : '✗ No'}</span></td>
+            </tr>`).join('')}</tbody></table>`;
+        }
+
         // Color Configuration
         const colors = {
             primary: '#ef4f5f',
@@ -826,6 +1100,7 @@
 
         // Load Statistics
         async function loadStats() {
+            showStatSkeletons();
             try {
                 const [restaurants, orders, ratings, cuisineData] = await Promise.all([
                     query('restaurants', 'select=restaurant_id&limit=1000'),
@@ -836,18 +1111,18 @@
 
                 const restaurantCount = Array.isArray(restaurants) ? restaurants.length : 0;
                 const orderCount = Array.isArray(orders) ? orders.length : 0;
-                
-                let avgRating = '0.0';
+
+                let avgRating = 0;
                 if (Array.isArray(ratings) && ratings.length > 0) {
                     const validRatings = ratings.filter(r => r.avg_rating && r.avg_rating > 0);
                     if (validRatings.length > 0) {
-                        avgRating = (validRatings.reduce((a, b) => a + b.avg_rating, 0) / validRatings.length).toFixed(2);
+                        avgRating = validRatings.reduce((a, b) => a + b.avg_rating, 0) / validRatings.length;
                     }
                 }
 
                 const cuisines = new Set(
-                    Array.isArray(cuisineData) 
-                        ? cuisineData.map(r => r.cuisine).filter(c => c && c.trim()) 
+                    Array.isArray(cuisineData)
+                        ? cuisineData.map(r => r.cuisine).filter(c => c && c.trim())
                         : []
                 );
 
@@ -855,32 +1130,37 @@
                     <div class="stat-card">
                         <div class="stat-card-content">
                             <div class="stat-label">Total Restaurants</div>
-                            <div class="stat-value">${restaurantCount}</div>
+                            <div class="stat-value" id="cnt-restaurants">0</div>
                             <div class="stat-change">From database</div>
                         </div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-card-content">
                             <div class="stat-label">Total Orders</div>
-                            <div class="stat-value">${orderCount}</div>
+                            <div class="stat-value" id="cnt-orders">0</div>
                             <div class="stat-change">All time</div>
                         </div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-card-content">
                             <div class="stat-label">Average Rating</div>
-                            <div class="stat-value">${avgRating}⭐</div>
+                            <div class="stat-value" id="cnt-rating">0.00⭐</div>
                             <div class="stat-change">Across all restaurants</div>
                         </div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-card-content">
                             <div class="stat-label">Cuisine Types</div>
-                            <div class="stat-value">${cuisines.size}</div>
+                            <div class="stat-value" id="cnt-cuisines">0</div>
                             <div class="stat-change">Variety available</div>
                         </div>
                     </div>
                 `;
+
+                animateCounter(document.getElementById('cnt-restaurants'), restaurantCount);
+                animateCounter(document.getElementById('cnt-orders'), orderCount);
+                animateCounter(document.getElementById('cnt-rating'), avgRating, true, '⭐');
+                animateCounter(document.getElementById('cnt-cuisines'), cuisines.size);
                 updateTimestamp();
             } catch (error) {
                 console.error('Stats error:', error);
@@ -899,6 +1179,17 @@
                         font: { family: "'Sora', sans-serif", size: 12, weight: '600' },
                         padding: 15,
                     }
+                },
+                tooltip: {
+                    backgroundColor: '#252d47',
+                    borderColor: '#323d5e',
+                    borderWidth: 1,
+                    titleColor: '#ffffff',
+                    bodyColor: '#b0b8d4',
+                    padding: 12,
+                    cornerRadius: 10,
+                    titleFont: { family: "'Outfit', sans-serif", size: 13, weight: '700' },
+                    bodyFont: { family: "'Sora', sans-serif", size: 12 },
                 }
             },
             scales: {
@@ -917,7 +1208,7 @@
             try {
                 const data = await query('orders', 'select=order_hour&limit=5000');
                 if (!data || data.length === 0) {
-                    document.getElementById('hoursChart').parentElement.innerHTML = '<div style="color: #b0b8d4; text-align: center; padding: 2rem;">No order data available</div>';
+                    document.getElementById('hoursChart').parentElement.innerHTML = emptyState('⏰', 'No order data available');
                     return;
                 }
                 const counts = Array(24).fill(0);
@@ -1109,28 +1400,19 @@
 
         async function loadTable() {
             try {
-                const data = await query('restaurants', 'select=name,area,cuisine,avg_rating,total_votes,restaurant_type,online_order&order=avg_rating.desc&limit=20');
+                const data = await query('restaurants', 'select=name,area,cuisine,avg_rating,total_votes,restaurant_type,online_order&order=avg_rating.desc&limit=100');
                 const w = document.getElementById('tableWrap');
-                
+
                 if (!data || data.length === 0) {
-                    w.innerHTML = '<div class="loading">No restaurant data found</div>';
+                    w.innerHTML = emptyState('🍽️', 'No restaurant data found');
                     return;
                 }
-                
-                w.innerHTML = `<table><thead><tr><th>#</th><th>Restaurant</th><th>Area</th><th>Cuisine</th><th>Rating</th><th>Votes</th><th>Type</th><th>Online</th></tr></thead>
-                <tbody>${data.map((r, i) => `<tr>
-                    <td><span class="rank-badge">${i + 1}</span></td>
-                    <td><strong>${r.name || 'Unknown'}</strong></td>
-                    <td>${r.area || '—'}</td>
-                    <td>${r.cuisine ? `<span class="type-badge">${r.cuisine}</span>` : '—'}</td>
-                    <td><span class="rating-star">${(r.avg_rating || 0).toFixed(1)}★</span></td>
-                    <td>${(r.total_votes || 0).toLocaleString()}</td>
-                    <td><span class="type-badge">${r.restaurant_type || '—'}</span></td>
-                    <td><span class="online-badge${!r.online_order ? ' offline' : ''}">${r.online_order ? '✓ Yes' : '✗ No'}</span></td>
-                </tr>`).join('')}</tbody></table>`;
+
+                allTableData = data;
+                renderTable(data);
             } catch (error) {
                 console.error('Table error:', error);
-                document.getElementById('tableWrap').innerHTML = '<div class="loading">Error loading restaurant data</div>';
+                document.getElementById('tableWrap').innerHTML = emptyState('⚠️', 'Error loading restaurant data');
             }
         }
 
@@ -1191,6 +1473,7 @@
         }
 
         // Initialize
+        showStatSkeletons();
         Promise.all([
             loadStats(),
             loadHours(),
