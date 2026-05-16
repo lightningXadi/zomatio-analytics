@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zomato Analytics Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #ef4f5f;
+            --primary-dark: #d63031;
+            --primary-light: #ff6b6b;
+            --dark: #0a0e27;
+            --dark-light: #1a1f3a;
+            --dark-lighter: #252d47;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b8d4;
+            --text-tertiary: #7a8299;
+            --border: #323d5e;
+            --accent-blue: #6366f1;
+            --accent-purple: #a855f7;
+            --accent-green: #10b981;
+            --accent-yellow: #fbbf24;
+            --bg-hover: rgba(255, 255, 255, 0.05);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4f5f;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Sora', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, var(--dark-light) 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(239, 79, 95, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(99, 102, 241, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: 
+                url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20,50 Q50,20 80,50' stroke='rgba(255,255,255,0.03)' fill='none' stroke-width='0.5'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.5;
+        }
+
+        header {
+            position: relative;
+            z-index: 10;
+            padding: 2.5rem 0;
+            border-bottom: 1px solid var(--border);
+            background: rgba(10, 14, 39, 0.4);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 800;
+            box-shadow: 0 8px 24px rgba(239, 79, 95, 0.3);
+            animation: logoFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .brand {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand-name {
+            font-size: 1.5rem;
+            font-weight: 800;
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .brand-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 600;
+        }
+
+        .header-meta {
+            display: flex;
+            gap: 1.5rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-align: right;
+        }
+
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .meta-label {
+            color: var(--text-tertiary);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .meta-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        @media (max-width: 768px) {
+            .header-meta {
+                display: none;
+            }
+        }
+
+        main {
+            position: relative;
+            z-index: 5;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2.5rem 2rem;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 3px;
+            height: 24px;
+            background: linear-gradient(180deg, var(--primary) 0%, var(--accent-purple) 100%);
+            border-radius: 3px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--dark-light) 0%, var(--dark-lighter) 100%);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.75rem;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(239, 79, 95, 0.1) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--primary);
+            box-shadow: 0 16px 40px rgba(239, 79, 95, 0.2);
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-card-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            font-family: 'Outfit', sans-serif;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            line-height: 1;
+        }
+
+        .stat-change {
+            font-size: 0.8rem;
+            color: var(--text-tertiary);
+        }
+
+        .stat-change.positive {
+            color: var(--success);
+        }
+
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .chart-card {
+            background: linear-gradient(135deg, var(--dark-light) 0%, var(--dark-lighter) 100%);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            animation: fadeInUp 0.6s ease-out 0.1s both;
+        }
+
+        .chart-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .chart-icon {
+            width: 32px;
+            height: 32px;
+            background: rgba(239, 79, 95, 0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+            margin-bottom: 1rem;
+        }
+
+        .ranking-section {
+            background: linear-gradient(135deg, var(--dark-light) 0%, var(--dark-lighter) 100%);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            animation: fadeInUp 0.6s ease-out 0.2s both;
+        }
+
+        .ranking-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .ranking-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+            color: var(--text-primary);
+        }
+
+        .ranking-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .ranking-item:hover {
+            background: rgba(239, 79, 95, 0.1);
+            border-color: var(--primary);
+            transform: translateX(8px);
+        }
+
+        .ranking-position {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            font-weight: 800;
+            font-family: 'Outfit', sans-serif;
+            flex-shrink: 0;
+        }
+
+        .ranking-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .ranking-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 0.25rem;
+        }
+
+        .ranking-rating {
+            font-size: 0.85rem;
+            color: var(--accent-yellow);
+            font-weight: 600;
+        }
+
+        .table-section {
+            background: linear-gradient(135deg, var(--dark-light) 0%, var(--dark-lighter) 100%);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease-out 0.3s both;
+            margin-bottom: 3rem;
+        }
+
+        .table-header {
+            padding: 1.75rem 2rem;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(90deg, rgba(239, 79, 95, 0.1) 0%, transparent 100%);
+        }
+
+        .table-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead th {
+            padding: 1.25rem 2rem;
+            text-align: left;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        tbody td {
+            padding: 1.25rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+
+        tbody tr {
+            transition: background 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background: rgba(239, 79, 95, 0.1);
+        }
+
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.9rem;
+        }
+
+        .rating-star {
+            color: var(--accent-yellow);
+            font-size: 0.95rem;
+        }
+
+        .type-badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            background: rgba(99, 102, 241, 0.2);
+            border: 1px solid var(--accent-blue);
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--accent-blue);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .online-badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid var(--success);
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--success);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .online-badge.offline {
+            background: rgba(239, 79, 95, 0.2);
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .stats-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .info-card {
+            background: linear-gradient(135deg, var(--dark-light) 0%, var(--dark-lighter) 100%);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            animation: fadeInUp 0.6s ease-out 0.4s both;
+        }
+
+        .info-stat {
+            margin-bottom: 1.5rem;
+        }
+
+        .info-stat:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .info-value {
+            font-size: 2rem;
+            font-weight: 800;
+            font-family: 'Outfit', sans-serif;
+            color: var(--primary);
+            line-height: 1;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        footer {
+            position: relative;
+            z-index: 5;
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-tertiary);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border);
+        }
+
+        @media (max-width: 1200px) {
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            main {
+                padding: 1.5rem 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-2col {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-card {
+                padding: 1.5rem;
+            }
+
+            .ranking-list {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-value {
+                font-size: 2rem;
+            }
+
+            .table-wrapper {
+                font-size: 0.9rem;
+            }
+
+            thead th,
+            tbody td {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo-section">
+                <div class="logo">🍜</div>
+                <div class="brand">
+                    <div class="brand-name">ZOMATO</div>
+                    <div class="brand-subtitle">Analytics Dashboard</div>
+                </div>
+            </div>
+            <div class="header-meta">
+                <div class="meta-item">
+                    <span class="meta-label">Database</span>
+                    <span class="meta-value">Supabase PostgreSQL</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Region</span>
+                    <span class="meta-value">Bangalore, India</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Last Updated</span>
+                    <span class="meta-value" id="updateTime">Just now</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Key Statistics -->
+        <section>
+            <h2 class="section-title">📊 Key Metrics</h2>
+            <div class="stats-grid" id="statsContainer">
+                <div class="loading"><div class="spinner"></div>Loading metrics...</div>
+            </div>
+        </section>
+
+        <!-- Charts -->
+        <section>
+            <h2 class="section-title">📈 Analytics</h2>
+            <div class="charts-container">
+                <div class="chart-card">
+                    <div class="chart-title">
+                        <div class="chart-icon">⏰</div>
+                        Peak Order Hours
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="hoursChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-title">
+                        <div class="chart-icon">🍽️</div>
+                        Restaurant by Type
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="typeChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-title">
+                        <div class="chart-icon">🥘</div>
+                        Top Cuisines
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="cuisineChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-title">
+                        <div class="chart-icon">🏍️</div>
+                        Delivery Time by Type
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="deliveryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Top Restaurants -->
+        <section>
+            <h2 class="section-title">⭐ Top Rated Restaurants</h2>
+            <div class="ranking-section">
+                <div class="ranking-list" id="topList">
+                    <div class="loading"><div class="spinner"></div>Loading restaurants...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Online Orders Stats -->
+        <section>
+            <h2 class="section-title">🛒 Order Delivery Stats</h2>
+            <div class="stats-2col">
+                <div class="info-card">
+                    <div id="onlineStats"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">
+                        <div class="chart-icon">📍</div>
+                        Top Areas by Rating
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="areaChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Restaurant Table -->
+        <section>
+            <h2 class="section-title">📋 All Restaurants</h2>
+            <div class="table-section">
+                <div class="table-header">
+                    <div class="table-title">
+                        <span>🏪 Restaurant Directory</span>
+                    </div>
+                </div>
+                <div class="table-wrapper" id="tableWrap">
+                    <div class="loading"><div class="spinner"></div>Loading restaurant data...</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2024 Zomato Analytics Dashboard • Built with Supabase • Real-time Data Visualization</p>
+    </footer>
+
+    <script>
+        // Supabase Configuration
+        const SUPABASE_URL = 'https://elmvxclgmfqvwwkrgwii.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsbXZ4Y2xnbWZxdnd3a3Jnd2lpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5MDk5OTksImV4cCI6MjA5NDQ4NTk5OX0.8d-tVZ2mxOVI3l9zkwwHAC2y4Szw8Z3w98n0dn_458U';
+
+        // Color Configuration
+        const colors = {
+            primary: '#ef4f5f',
+            secondary: '#a855f7',
+            accent1: '#6366f1',
+            accent2: '#10b981',
+            accent3: '#fbbf24',
+            accent4: '#f59e0b'
+        };
+
+        // Fetch from Supabase with improved error handling
+        async function query(table, queryString) {
+            try {
+                const url = `${SUPABASE_URL}/rest/v1/${table}?${queryString}`;
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'count=estimated'
+                    }
+                });
+                
+                if (!response.ok) {
+                    console.warn(`API warning for ${table}: ${response.status}`);
+                    return [];
+                }
+                
+                const data = await response.json();
+                return Array.isArray(data) ? data : [];
+            } catch (error) {
+                console.error(`Query error for ${table}:`, error.message);
+                return [];
+            }
+        }
+
+        // Update timestamp
+        function updateTimestamp() {
+            document.getElementById('updateTime').textContent = new Date().toLocaleTimeString();
+        }
+
+        // Load Statistics
+        async function loadStats() {
+            try {
+                const [restaurants, orders, ratings, cuisineData] = await Promise.all([
+                    query('restaurants', 'select=restaurant_id&limit=1000'),
+                    query('orders', 'select=order_id&limit=5000'),
+                    query('restaurants', 'select=avg_rating&limit=1000'),
+                    query('restaurants', 'select=cuisine&limit=1000')
+                ]);
+
+                const restaurantCount = Array.isArray(restaurants) ? restaurants.length : 0;
+                const orderCount = Array.isArray(orders) ? orders.length : 0;
+                
+                let avgRating = '0.0';
+                if (Array.isArray(ratings) && ratings.length > 0) {
+                    const validRatings = ratings.filter(r => r.avg_rating && r.avg_rating > 0);
+                    if (validRatings.length > 0) {
+                        avgRating = (validRatings.reduce((a, b) => a + b.avg_rating, 0) / validRatings.length).toFixed(2);
+                    }
+                }
+
+                const cuisines = new Set(
+                    Array.isArray(cuisineData) 
+                        ? cuisineData.map(r => r.cuisine).filter(c => c && c.trim()) 
+                        : []
+                );
+
+                document.getElementById('statsContainer').innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-card-content">
+                            <div class="stat-label">Total Restaurants</div>
+                            <div class="stat-value">${restaurantCount}</div>
+                            <div class="stat-change">From database</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-content">
+                            <div class="stat-label">Total Orders</div>
+                            <div class="stat-value">${orderCount}</div>
+                            <div class="stat-change">All time</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-content">
+                            <div class="stat-label">Average Rating</div>
+                            <div class="stat-value">${avgRating}⭐</div>
+                            <div class="stat-change">Across all restaurants</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-content">
+                            <div class="stat-label">Cuisine Types</div>
+                            <div class="stat-value">${cuisines.size}</div>
+                            <div class="stat-change">Variety available</div>
+                        </div>
+                    </div>
+                `;
+                updateTimestamp();
+            } catch (error) {
+                console.error('Stats error:', error);
+                document.getElementById('statsContainer').innerHTML = '<div class="stat-card"><div style="color: #b0b8d4;">Failed to load statistics</div></div>';
+            }
+        }
+
+        // Load Charts
+        const chartConfig = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#b0b8d4',
+                        font: { family: "'Sora', sans-serif", size: 12, weight: '600' },
+                        padding: 15,
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: '#b0b8d4', font: { family: "'Sora', sans-serif", size: 11 } },
+                    grid: { color: '#323d5e', drawBorder: false }
+                },
+                y: {
+                    ticks: { color: '#b0b8d4', font: { family: "'Sora', sans-serif", size: 11 } },
+                    grid: { color: '#323d5e', drawBorder: false }
+                }
+            }
+        };
+
+        async function loadHours() {
+            try {
+                const data = await query('orders', 'select=order_hour&limit=5000');
+                if (!data || data.length === 0) {
+                    document.getElementById('hoursChart').parentElement.innerHTML = '<div style="color: #b0b8d4; text-align: center; padding: 2rem;">No order data available</div>';
+                    return;
+                }
+                const counts = Array(24).fill(0);
+                data.forEach(r => { if (r.order_hour >= 0 && r.order_hour < 24) counts[r.order_hour]++; });
+
+                new Chart(document.getElementById('hoursChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: Array.from({ length: 24 }, (_, i) => `${i}h`),
+                        datasets: [{
+                            data: counts,
+                            backgroundColor: counts.map((_, i) =>
+                                i >= 18 && i <= 22 ? colors.primary :
+                                i >= 11 && i <= 14 ? colors.accent1 : '#323d5e'
+                            ),
+                            borderRadius: 8,
+                            borderSkipped: false
+                        }]
+                    },
+                    options: { ...chartConfig, plugins: { ...chartConfig.plugins, legend: { display: false } } }
+                });
+            } catch (error) {
+                console.error('Hours chart error:', error);
+            }
+        }
+
+        async function loadTopList() {
+            try {
+                const data = await query('restaurants', 'select=name,avg_rating&order=avg_rating.desc&limit=12');
+                if (!data || data.length === 0) {
+                    document.getElementById('topList').innerHTML = '<div style="color: #b0b8d4; text-align: center; padding: 2rem; grid-column: 1 / -1;">No restaurant data available</div>';
+                    return;
+                }
+                document.getElementById('topList').innerHTML = data.map((r, i) => `
+                    <div class="ranking-item">
+                        <div class="ranking-position">${String(i + 1).padStart(2, '0')}</div>
+                        <div class="ranking-details">
+                            <div class="ranking-name">${r.name || 'Unknown'}</div>
+                            <div class="ranking-rating">${(r.avg_rating || 0).toFixed(1)}★ Rating</div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Top list error:', error);
+            }
+        }
+
+        async function loadCuisine() {
+            try {
+                const data = await query('restaurants', 'select=cuisine,avg_rating&limit=1000');
+                if (!data || data.length === 0) {
+                    document.getElementById('cuisineChart').parentElement.innerHTML = '<div style="color: #b0b8d4; text-align: center; padding: 2rem;">No cuisine data available</div>';
+                    return;
+                }
+                
+                const map = {};
+                data.forEach(r => {
+                    if (!r.cuisine || !r.avg_rating) return;
+                    if (!map[r.cuisine]) map[r.cuisine] = [];
+                    map[r.cuisine].push(r.avg_rating);
+                });
+                
+                const avgs = Object.entries(map)
+                    .map(([k, v]) => ({ c: k, a: v.reduce((x, y) => x + y, 0) / v.length, n: v.length }))
+                    .filter(x => x.n >= 5)
+                    .sort((a, b) => b.a - a.a)
+                    .slice(0, 8);
+
+                if (avgs.length === 0) {
+                    document.getElementById('cuisineChart').parentElement.innerHTML = '<div style="color: #b0b8d4; text-align: center; padding: 2rem;">Insufficient cuisine data</div>';
+                    return;
+                }
+
+                new Chart(document.getElementById('cuisineChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: avgs.map(x => x.c),
+                        datasets: [{
+                            data: avgs.map(x => +x.a.toFixed(2)),
+                            backgroundColor: colors.primary,
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        ...chartConfig,
+                        scales: {
+                            x: { ...chartConfig.scales.x, min: 3, max: 5 },
+                            y: { ...chartConfig.scales.y }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Cuisine chart error:', error);
+            }
+        }
+
+        async function loadDelivery() {
+            try {
+                const [ords, rests] = await Promise.all([
+                    query('orders', 'select=restaurant_id,delivery_time_mins&limit=5000'),
+                    query('restaurants', 'select=restaurant_id,restaurant_type&limit=1000')
+                ]);
+                
+                if (!ords || !rests || ords.length === 0 || rests.length === 0) {
+                    document.getElementById('deliveryChart').parentElement.innerHTML = '<div style="color: #b0b8d4; text-align: center; padding: 2rem;">No delivery data available</div>';
+                    return;
+                }
+                
+                const tm = {}; 
+                rests.forEach(r => { if (r.restaurant_id) tm[r.restaurant_id] = r.restaurant_type; });
+                const dm = {};
+                ords.forEach(o => {
+                    const t = tm[o.restaurant_id];
+                    if (!t || !o.delivery_time_mins) return;
+                    if (!dm[t]) dm[t] = [];
+                    dm[t].push(o.delivery_time_mins);
+                });
+                
+                const res = Object.entries(dm)
+                    .map(([k, v]) => ({ t: k, a: v.reduce((a, b) => a + b, 0) / v.length }))
+                    .sort((a, b) => a.a - b.a)
+                    .slice(0, 7);
+
+                if (res.length === 0) {
+                    document.getElementById('deliveryChart').parentElement.innerHTML = '<div style="color: #b0b8d4; text-align: center; padding: 2rem;">No delivery statistics available</div>';
+                    return;
+                }
+
+                new Chart(document.getElementById('deliveryChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: res.map(x => x.t),
+                        datasets: [{
+                            data: res.map(x => +x.a.toFixed(1)),
+                            backgroundColor: colors.accent3,
+                            borderRadius: 8
+                        }]
+                    },
+                    options: { indexAxis: 'y', ...chartConfig }
+                });
+            } catch (error) {
+                console.error('Delivery chart error:', error);
+            }
+        }
+
+        async function loadArea() {
+            try {
+                const data = await query('restaurants', 'select=area,avg_rating&limit=1000');
+                if (!data || data.length === 0) {
+                    document.getElementById('areaChart').parentElement.innerHTML = '<div style="color: #b0b8d4; text-align: center; padding: 2rem;">No area data available</div>';
+                    return;
+                }
+                
+                const map = {};
+                data.forEach(r => {
+                    if (!r.area) return;
+                    if (!map[r.area]) map[r.area] = [];
+                    map[r.area].push(r.avg_rating);
+                });
+                
+                const res = Object.entries(map)
+                    .map(([k, v]) => ({ a: k, r: v.reduce((x, y) => x + y, 0) / v.length, n: v.length }))
+                    .filter(x => x.n >= 5)
+                    .sort((a, b) => b.r - a.r)
+                    .slice(0, 8);
+
+                if (res.length === 0) {
+                    document.getElementById('areaChart').parentElement.innerHTML = '<div style="color: #b0b8d4; text-align: center; padding: 2rem;">Insufficient area data</div>';
+                    return;
+                }
+
+                new Chart(document.getElementById('areaChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: res.map(x => x.a),
+                        datasets: [{
+                            data: res.map(x => +x.r.toFixed(2)),
+                            backgroundColor: colors.accent1,
+                            borderRadius: 8
+                        }]
+                    },
+                    options: { indexAxis: 'y', ...chartConfig, scales: { x: { ...chartConfig.scales.x, min: 3.5, max: 5 }, y: { ...chartConfig.scales.y } } }
+                });
+            } catch (error) {
+                console.error('Area chart error:', error);
+            }
+        }
+
+        async function loadTable() {
+            try {
+                const data = await query('restaurants', 'select=name,area,cuisine,avg_rating,total_votes,restaurant_type,online_order&order=avg_rating.desc&limit=20');
+                const w = document.getElementById('tableWrap');
+                
+                if (!data || data.length === 0) {
+                    w.innerHTML = '<div class="loading">No restaurant data found</div>';
+                    return;
+                }
+                
+                w.innerHTML = `<table><thead><tr><th>#</th><th>Restaurant</th><th>Area</th><th>Cuisine</th><th>Rating</th><th>Votes</th><th>Type</th><th>Online</th></tr></thead>
+                <tbody>${data.map((r, i) => `<tr>
+                    <td><span class="rank-badge">${i + 1}</span></td>
+                    <td><strong>${r.name || 'Unknown'}</strong></td>
+                    <td>${r.area || '—'}</td>
+                    <td>${r.cuisine ? `<span class="type-badge">${r.cuisine}</span>` : '—'}</td>
+                    <td><span class="rating-star">${(r.avg_rating || 0).toFixed(1)}★</span></td>
+                    <td>${(r.total_votes || 0).toLocaleString()}</td>
+                    <td><span class="type-badge">${r.restaurant_type || '—'}</span></td>
+                    <td><span class="online-badge${!r.online_order ? ' offline' : ''}">${r.online_order ? '✓ Yes' : '✗ No'}</span></td>
+                </tr>`).join('')}</tbody></table>`;
+            } catch (error) {
+                console.error('Table error:', error);
+                document.getElementById('tableWrap').innerHTML = '<div class="loading">Error loading restaurant data</div>';
+            }
+        }
+
+        async function loadType() {
+            try {
+                const data = await query('restaurants', 'select=restaurant_type,online_order&limit=1000');
+                
+                if (!data || data.length === 0) {
+                    document.getElementById('typeChart').parentElement.innerHTML = '<div style="color: #b0b8d4; text-align: center; padding: 2rem;">No restaurant type data available</div>';
+                    return;
+                }
+                
+                const map = {};
+                data.forEach(r => { if (r.restaurant_type) map[r.restaurant_type] = (map[r.restaurant_type] || 0) + 1; });
+                const sorted = Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 6);
+
+                if (sorted.length === 0) {
+                    document.getElementById('typeChart').parentElement.innerHTML = '<div style="color: #b0b8d4; text-align: center; padding: 2rem;">No restaurant types found</div>';
+                    return;
+                }
+
+                new Chart(document.getElementById('typeChart'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: sorted.map(x => x[0]),
+                        datasets: [{
+                            data: sorted.map(x => x[1]),
+                            backgroundColor: [colors.primary, colors.secondary, colors.accent1, colors.accent2, colors.accent3, colors.accent4],
+                            borderColor: '#1a1f3a',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: { ...chartConfig }
+                });
+
+                const online = data.filter(r => r.online_order).length;
+                const offline = data.length - online;
+                const pct = data.length > 0 ? Math.round(online / data.length * 100) : 0;
+
+                document.getElementById('onlineStats').innerHTML = `
+                    <div class="info-stat">
+                        <div class="info-label">Online Order Acceptance</div>
+                        <div class="info-value">${pct}%</div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: ${pct}%"></div></div>
+                    </div>
+                    <div class="info-stat">
+                        <div class="info-label">Restaurants Accepting Orders</div>
+                        <div class="info-value">${online}</div>
+                    </div>
+                    <div class="info-stat">
+                        <div class="info-label">Dine-in Only</div>
+                        <div class="info-value">${offline}</div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Type chart error:', error);
+            }
+        }
+
+        // Initialize
+        Promise.all([
+            loadStats(),
+            loadHours(),
+            loadTopList(),
+            loadCuisine(),
+            loadDelivery(),
+            loadArea(),
+            loadTable(),
+            loadType()
+        ]).catch(console.error);
+    </script>
+</body>
+</html>
